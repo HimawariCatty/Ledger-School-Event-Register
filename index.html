@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger School Event Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <div class="brand-mark">L</div>
+      <div class="brand-text">
+        <h1>Ledger</h1>
+        <p>School Event Register</p>
+      </div>
+    </div>
+    <div class="today">
+      <div>Today</div>
+      <div class="d" id="todayDate"></div>
+    </div>
+  </div>
+</header>
+ 
+<main class="wrap">
+ 
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h2>Every assembly, match and meeting in one register.</h2>
+        <p class="lede">Browse what's coming up, reserve a seat, or add a new event for the calendar. No login required for this demo.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="num" id="statUpcoming">0</div>
+          <div class="lbl">Upcoming</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statSeats">0</div>
+          <div class="lbl">Seats Reserved</div>
+        </div>
+        <div class="stat">
+          <div class="num" id="statCategories">0</div>
+          <div class="lbl">Categories</div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <div class="toolbar">
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Search events, e.g. “science fair”" />
+    </div>
+    <div class="chips" id="chipRow"></div>
+    <button class="btn" id="openAdd">+ New Event</button>
+  </div>
+ 
+  <div class="section-label">
+    <h3>Upcoming</h3>
+    <span class="count" id="upcomingCount">0 events</span>
+  </div>
+  <div class="ledger" id="upcomingList"></div>
+ 
+  <div class="section-label" id="pastLabel" style="display:none">
+    <h3>Past</h3>
+    <span class="count" id="pastCount">0 events</span>
+  </div>
+  <div class="ledger" id="pastList"></div>
+ 
+  <footer>
+    <span>Ledger — a lightweight event register, built for demonstration.</span>
+    <span>Data resets on page reload.</span>
+  </footer>
+</main>
+ 
+<!-- Add Event Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>New event</h3>
+      <button class="icon-btn" id="closeAdd" aria-label="Close">✕</button>
+    </div>
+    <form id="eventForm">
+      <div class="field">
+        <label for="f-title">Title</label>
+        <input id="f-title" required placeholder="Winter Concert" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-date">Date</label>
+          <input id="f-date" type="date" required />
+        </div>
+        <div class="field">
+          <label for="f-time">Time</label>
+          <input id="f-time" type="time" required />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-category">Category</label>
+          <select id="f-category">
+            <option>Academic</option>
+            <option>Sports</option>
+            <option>Culture</option>
+            <option>Club</option>
+            <option>Meeting</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-capacity">Capacity</label>
+          <input id="f-capacity" type="number" min="1" value="30" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-location">Location</label>
+        <input id="f-location" required placeholder="Main Auditorium" />
+      </div>
+      <div class="field">
+        <label for="f-desc">Description <span style="text-transform:none; font-weight:400;">(optional)</span></label>
+        <textarea id="f-desc" placeholder="A short note for attendees..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="cancelAdd">Cancel</button>
+        <button type="submit" class="btn">Add to register</button>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<script src="script.js"></script>
+</body>
+</html>
