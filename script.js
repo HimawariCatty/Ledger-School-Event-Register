@@ -8,29 +8,33 @@
   let idCounter = 1;
   function nextId(){ return idCounter++; }
 
-  let events = [
-    mk("Fall Science Fair", "Academic", "2026-08-27", "09:00", "Gymnasium", 120, 74,
-      "Student projects on display all morning, judging begins at 11."),
-    mk("Varsity Soccer vs. Northgate", "Sports", "2026-08-23", "16:00", "East Field", 200, 156,
-      "Home opener. Concessions run by the Junior Class."),
-    mk("Drama Club Auditions", "Club", "2026-08-24", "15:30", "Room 214", 40, 12,
-      "Bring a one-minute monologue, no sign-up needed."),
-    mk("PTA General Meeting", "Meeting", "2026-08-26", "18:30", "Library", 60, 22,
-      "Agenda: fall fundraiser and cafeteria menu changes."),
-    mk("Winter Concert Rehearsal", "Culture", "2026-09-02", "17:00", "Auditorium", 90, 30, ""),
-    mk("Robotics Workshop", "Club", "2026-09-05", "14:00", "STEM Lab", 25, 25,
-      "Full — waitlist forms available at the front desk."),
-    mk("Career Day", "Academic", "2026-09-10", "10:00", "Cafeteria", 300, 88,
-      "Local professionals share paths across a dozen industries."),
-    mk("Homecoming Pep Rally", "Sports", "2026-09-18", "13:00", "Gymnasium", 500, 210, ""),
-    mk("Freshman Orientation", "Meeting", "2026-08-05", "09:00", "Auditorium", 150, 150,
-      "Already held — kept here for reference."),
-    mk("Art Club Gallery Night", "Culture", "2026-08-12", "18:00", "Room 108", 50, 41, "")
-  ];
+  // ---------- Persistence (localStorage) ----------
+  const STORAGE_KEY = 'ledger.events.v1';
 
-  function mk(title, category, date, time, location, capacity, reserved, desc){
-    return { id: nextId(), title, category, date, time, location, capacity, reserved, desc: desc || "" };
+  function loadEvents(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(err){
+      console.error('Could not read saved events:', err);
+      return [];
+    }
   }
+
+  function saveEvents(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    }catch(err){
+      console.error('Could not save events:', err);
+      showToast('Could not save — storage may be full or disabled.');
+    }
+  }
+
+  let events = loadEvents();
+  // Keep new ids ahead of anything already saved
+  idCounter = events.reduce((max, ev) => Math.max(max, ev.id), 0) + 1;
 
   // ---------- Derived state ----------
   const CATEGORIES = ["Academic","Sports","Culture","Club","Meeting"];
@@ -132,7 +136,9 @@
     document.getElementById('upcomingCount').textContent = `${upcoming.length} event${upcoming.length!==1?'s':''}`;
     upcomingList.innerHTML = upcoming.length
       ? upcoming.map(ev => eventRowHTML(ev,false)).join('')
-      : `<div class="empty"><div class="display">Nothing on the register.</div><p>Try a different category or add a new event.</p></div>`;
+      : events.length === 0
+        ? `<div class="empty"><div class="display">The register is empty.</div><p>Add your first event with the button above.</p></div>`
+        : `<div class="empty"><div class="display">Nothing matches.</div><p>Try a different category or search term.</p></div>`;
 
     if(past.length){
       pastLabel.style.display = 'flex';
@@ -170,6 +176,7 @@
     if(action === 'rsvp'){
       if(ev.reserved < ev.capacity){
         ev.reserved++;
+        saveEvents();
         showToast(`Seat reserved for “${ev.title}”.`);
         render();
       }
@@ -179,6 +186,7 @@
     } else if(action === 'delete'){
       if(confirm(`Remove “${ev.title}” from the register?`)){
         events = events.filter(x => x.id !== id);
+        saveEvents();
         showToast('Event removed.');
         render();
       }
@@ -215,6 +223,7 @@
     if(!title || !date || !time || !location) return;
 
     events.push({ id: nextId(), title, category, date, time, location, capacity, reserved:0, desc });
+    saveEvents();
     closeModal();
     activeCategory = "All";
     searchTerm = "";
